@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define FILENAME "students.dat"
+#define FILENAME "students.txt"
 
 typedef struct {
     int roll;
@@ -12,9 +12,9 @@ typedef struct {
 
 void addStudent() {
     Student s;
-    FILE *fp = fopen(FILENAME, "ab");
+    FILE *fp = fopen(FILENAME, "a");
     if (fp == NULL) {
-        printf("File error.\n");
+        printf("Unable to open file.\n");
         return;
     }
 
@@ -25,21 +25,21 @@ void addStudent() {
     printf("Enter marks: ");
     scanf("%f", &s.marks);
 
-    fwrite(&s, sizeof(Student), 1, fp);
+    fprintf(fp, "%d %s %.2f\n", s.roll, s.name, s.marks);
     fclose(fp);
     printf("Student added successfully.\n");
 }
 
 void displayStudents() {
     Student s;
-    FILE *fp = fopen(FILENAME, "rb");
+    FILE *fp = fopen(FILENAME, "r");
     if (fp == NULL) {
         printf("No records found.\n");
         return;
     }
 
     printf("\n--- Student Records ---\n");
-    while (fread(&s, sizeof(Student), 1, fp)) {
+    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
         printf("Roll: %d\nName: %s\nMarks: %.2f\n\n", s.roll, s.name, s.marks);
     }
 
@@ -47,10 +47,9 @@ void displayStudents() {
 }
 
 void searchStudent() {
-    int roll;
-    int found = 0;
+    int roll, found = 0;
     Student s;
-    FILE *fp = fopen(FILENAME, "rb");
+    FILE *fp = fopen(FILENAME, "r");
     if (fp == NULL) {
         printf("File not found.\n");
         return;
@@ -59,7 +58,7 @@ void searchStudent() {
     printf("Enter roll number to search: ");
     scanf("%d", &roll);
 
-    while (fread(&s, sizeof(Student), 1, fp)) {
+    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
         if (s.roll == roll) {
             printf("Record found:\nRoll: %d\nName: %s\nMarks: %.2f\n", s.roll, s.name, s.marks);
             found = 1;
@@ -76,8 +75,10 @@ void searchStudent() {
 void updateStudent() {
     int roll, found = 0;
     Student s;
-    FILE *fp = fopen(FILENAME, "rb+");
-    if (fp == NULL) {
+    FILE *fp = fopen(FILENAME, "r");
+    FILE *temp = fopen("temp.txt", "w");
+
+    if (fp == NULL || temp == NULL) {
         printf("File error.\n");
         return;
     }
@@ -85,33 +86,35 @@ void updateStudent() {
     printf("Enter roll number to update: ");
     scanf("%d", &roll);
 
-    while (fread(&s, sizeof(Student), 1, fp)) {
+    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
         if (s.roll == roll) {
-            printf("Existing Record:\nName: %s\nMarks: %.2f\n", s.name, s.marks);
+            printf("Existing Record: Name = %s, Marks = %.2f\n", s.name, s.marks);
             printf("Enter new name: ");
             scanf(" %[^\n]", s.name);
             printf("Enter new marks: ");
             scanf("%f", &s.marks);
-
-            fseek(fp, -sizeof(Student), SEEK_CUR);
-            fwrite(&s, sizeof(Student), 1, fp);
-            printf("Record updated.\n");
             found = 1;
-            break;
         }
+        fprintf(temp, "%d %s %.2f\n", s.roll, s.name, s.marks);
     }
 
-    if (!found)
-        printf("Student not found.\n");
-
     fclose(fp);
+    fclose(temp);
+
+    remove(FILENAME);
+    rename("temp.txt", FILENAME);
+
+    if (found)
+        printf("Record updated.\n");
+    else
+        printf("Student not found.\n");
 }
 
 void deleteStudent() {
     int roll, found = 0;
     Student s;
-    FILE *fp = fopen(FILENAME, "rb");
-    FILE *temp = fopen("temp.dat", "wb");
+    FILE *fp = fopen(FILENAME, "r");
+    FILE *temp = fopen("temp.txt", "w");
 
     if (fp == NULL || temp == NULL) {
         printf("File error.\n");
@@ -121,11 +124,11 @@ void deleteStudent() {
     printf("Enter roll number to delete: ");
     scanf("%d", &roll);
 
-    while (fread(&s, sizeof(Student), 1, fp)) {
+    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
         if (s.roll == roll) {
             found = 1;
         } else {
-            fwrite(&s, sizeof(Student), 1, temp);
+            fprintf(temp, "%d %s %.2f\n", s.roll, s.name, s.marks);
         }
     }
 
@@ -133,7 +136,7 @@ void deleteStudent() {
     fclose(temp);
 
     remove(FILENAME);
-    rename("temp.dat", FILENAME);
+    rename("temp.txt", FILENAME);
 
     if (found)
         printf("Record deleted.\n");
