@@ -25,7 +25,7 @@ void addStudent() {
     printf("Enter marks: ");
     scanf("%f", &s.marks);
 
-    fprintf(fp, "%d %s %.2f\n", s.roll, s.name, s.marks);
+    fprintf(fp, "%d|%s|%.2f\n", s.roll, s.name, s.marks);
     fclose(fp);
     printf("Student added successfully.\n");
 }
@@ -39,7 +39,7 @@ void displayStudents() {
     }
 
     printf("\n--- Student Records ---\n");
-    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
+    while (fscanf(fp, "%d|%[^|]|%f\n", &s.roll, s.name, &s.marks) == 3) {
         printf("Roll: %d\nName: %s\nMarks: %.2f\n\n", s.roll, s.name, s.marks);
     }
 
@@ -58,7 +58,7 @@ void searchStudent() {
     printf("Enter roll number to search: ");
     scanf("%d", &roll);
 
-    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
+    while (fscanf(fp, "%d|%[^|]|%f\n", &s.roll, s.name, &s.marks) == 3) {
         if (s.roll == roll) {
             printf("Record found:\nRoll: %d\nName: %s\nMarks: %.2f\n", s.roll, s.name, s.marks);
             found = 1;
@@ -86,7 +86,7 @@ void updateStudent() {
     printf("Enter roll number to update: ");
     scanf("%d", &roll);
 
-    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
+    while (fscanf(fp, "%d|%[^|]|%f\n", &s.roll, s.name, &s.marks) == 3) {
         if (s.roll == roll) {
             printf("Existing Record: Name = %s, Marks = %.2f\n", s.name, s.marks);
             printf("Enter new name: ");
@@ -95,7 +95,7 @@ void updateStudent() {
             scanf("%f", &s.marks);
             found = 1;
         }
-        fprintf(temp, "%d %s %.2f\n", s.roll, s.name, s.marks);
+        fprintf(temp, "%d|%s|%.2f\n", s.roll, s.name, s.marks);
     }
 
     fclose(fp);
@@ -124,11 +124,11 @@ void deleteStudent() {
     printf("Enter roll number to delete: ");
     scanf("%d", &roll);
 
-    while (fscanf(fp, "%d %s %f", &s.roll, s.name, &s.marks) == 3) {
+    while (fscanf(fp, "%d|%[^|]|%f\n", &s.roll, s.name, &s.marks) == 3) {
         if (s.roll == roll) {
             found = 1;
         } else {
-            fprintf(temp, "%d %s %.2f\n", s.roll, s.name, s.marks);
+            fprintf(temp, "%d|%s|%.2f\n", s.roll, s.name, s.marks);
         }
     }
 
