@@ -6,7 +6,7 @@
 
 typedef struct {
     int acc_no;
-    char name[50];
+    char name[100]; // Increased for longer names
     float balance;
 } Account;
 
@@ -21,11 +21,12 @@ void createAccount() {
     printf("Enter Account Number: ");
     scanf("%d", &a.acc_no);
     printf("Enter Name: ");
-    scanf(" %[^\n]", a.name);
+    scanf(" %[^\n]", a.name); // Accepts full name with spaces
     printf("Enter Initial Deposit: ");
     scanf("%f", &a.balance);
 
-    fprintf(fp, "%d %s %.2f\n", a.acc_no, a.name, a.balance);
+    // Write with name in quotes
+    fprintf(fp, "%d \"%s\" %.2f\n", a.acc_no, a.name, a.balance);
     fclose(fp);
     printf("Account created successfully.\n");
 }
@@ -43,7 +44,8 @@ void displayBalance() {
     printf("Enter Account Number to view balance: ");
     scanf("%d", &acc_no);
 
-    while (fscanf(fp, "%d %s %f", &a.acc_no, a.name, &a.balance) == 3) {
+    // Read name from within quotes
+    while (fscanf(fp, "%d \"%[^\"]\" %f", &a.acc_no, a.name, &a.balance) == 3) {
         if (a.acc_no == acc_no) {
             printf("Account Holder: %s\nBalance: %.2f\n", a.name, a.balance);
             found = 1;
@@ -74,12 +76,12 @@ void depositMoney() {
     printf("Enter amount to deposit: ");
     scanf("%f", &amount);
 
-    while (fscanf(fp, "%d %s %f", &a.acc_no, a.name, &a.balance) == 3) {
+    while (fscanf(fp, "%d \"%[^\"]\" %f", &a.acc_no, a.name, &a.balance) == 3) {
         if (a.acc_no == acc_no) {
             a.balance += amount;
             found = 1;
         }
-        fprintf(temp, "%d %s %.2f\n", a.acc_no, a.name, a.balance);
+        fprintf(temp, "%d \"%s\" %.2f\n", a.acc_no, a.name, a.balance);
     }
 
     fclose(fp);
@@ -110,7 +112,7 @@ void withdrawMoney() {
     printf("Enter amount to withdraw: ");
     scanf("%f", &amount);
 
-    while (fscanf(fp, "%d %s %f", &a.acc_no, a.name, &a.balance) == 3) {
+    while (fscanf(fp, "%d \"%[^\"]\" %f", &a.acc_no, a.name, &a.balance) == 3) {
         if (a.acc_no == acc_no) {
             if (a.balance >= amount) {
                 a.balance -= amount;
@@ -120,7 +122,7 @@ void withdrawMoney() {
                 found = -1;
             }
         }
-        fprintf(temp, "%d %s %.2f\n", a.acc_no, a.name, a.balance);
+        fprintf(temp, "%d \"%s\" %.2f\n", a.acc_no, a.name, a.balance);
     }
 
     fclose(fp);
@@ -139,7 +141,11 @@ int main() {
 
     while (1) {
         printf("\n--- Bank Management System ---\n");
-        printf("1. Create Account\n2. Deposit Money\n3. Withdraw Money\n4. Display Balance\n5. Exit\n");
+        printf("1. Create Account\n");
+        printf("2. Deposit Money\n");
+        printf("3. Withdraw Money\n");
+        printf("4. Display Balance\n");
+        printf("5. Exit\n");
         printf("Enter choice: ");
         scanf("%d", &choice);
 
